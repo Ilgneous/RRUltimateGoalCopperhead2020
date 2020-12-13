@@ -633,22 +633,24 @@ public class hardwareMap {
         fR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         bR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
-    public void turnPID(double angle, double pwr, double d) {
+    public void turnPID(double angle, double pwr, double i, double d) {
         resetAngle();
 
         double deltaAngle = Math.abs(angle - getAngle());
         double pastdeltaAngle = deltaAngle;
-        double currentTime;
+        double currentTime = runtime.milliseconds();
         double kP = pwr / angle;
-        double kI = 0.01;
+        double kI = i;
         double kD = d / angle;
         double prevTime = 0;
         double apply = 0;
         double deltaTime;
 
-        while (Math.abs(deltaAngle) > 2){
+        while (Math.abs(deltaAngle) > 1){
             deltaAngle = Math.abs(angle - getAngle());
             kP = deltaAngle * kP;
+            prevTime = currentTime;
+            pastdeltaAngle = deltaAngle;
             currentTime = runtime.milliseconds();
             deltaTime =  currentTime - prevTime;
             kI = deltaAngle * deltaTime * kI;
@@ -660,8 +662,7 @@ public class hardwareMap {
             bL.setPower(-apply);
             bR.setPower(apply);
 
-            prevTime = currentTime;
-            pastdeltaAngle = deltaAngle;
+
         }
     }
 
