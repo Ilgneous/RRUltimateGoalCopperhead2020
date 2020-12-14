@@ -12,31 +12,31 @@ public class outtakeTest extends OpMode {
     hardwareMap robot = new hardwareMap();
     DcMotor shooter;
     DcMotor shooter2;
-    //CRServo elevator;
+    CRServo elevator2;
     Servo wobbleGrabber;
     DcMotor intake;
-    Servo elevator;
+    //Servo elevator;
     DcMotor pulley1;
     Servo pusher;
     @Override
     public void init() {
         shooter = hardwareMap.get(DcMotor.class, "shooter");
         shooter2 = hardwareMap.get(DcMotor.class, "shooter2");
-        elevator = hardwareMap.get(Servo.class, "elevator");
-        //wobbleGrabber = hardwareMap.get(Servo.class, "wobbleGrabber");
+        //elevator = hardwareMap.get(Servo.class, "elevator");
+        wobbleGrabber = hardwareMap.get(Servo.class, "wobbleGrabber");
         intake = hardwareMap.get(DcMotor.class, "intake");
         pulley1 = hardwareMap.get(DcMotor.class, "pulley");
         pusher = hardwareMap.get(Servo.class, "pusher");
-        //elevator = hardwareMap.get(Servo.class, "elevator");
+        elevator2 = hardwareMap.get(CRServo.class, "elevator2");
         telemetry.addData("robot", " initialized");
         telemetry.update();
     }
 
     @Override
     public void loop() {
-        if(gamepad1.right_trigger > 0.1){
-            shooter.setPower(-gamepad1.right_trigger);
-            shooter2.setPower(-gamepad1.right_trigger);
+        if(gamepad2.right_trigger > 0.1){
+            shooter.setPower(-gamepad2.right_trigger);
+            shooter2.setPower(-gamepad2.right_trigger);
             telemetry.addData("shooter", shooter.getPower());
             telemetry.update();
         }
@@ -46,32 +46,35 @@ public class outtakeTest extends OpMode {
             telemetry.addData("shooter", shooter.getPower());
             telemetry.update();
         }
-       /* if(gamepad1.left_stick_y > 0.1){
-            elevator.setPower(gamepad1.left_stick_y);
-            telemetry.addData("elevator", elevator.getPower());
+        if(gamepad2.dpad_down){
+            elevator2.setPower(1);
+            telemetry.addData("elevator", elevator2.getPower());
+            telemetry.update();
+        }
+        else if(gamepad2.dpad_up){
+            elevator2.setPower(-1);
+            telemetry.addData("elevator", elevator2.getPower());
             telemetry.update();
         }
         else{
-            elevator.setPower(0);
-            telemetry.addData("elevator", elevator.getPower());
-            telemetry.update();
-        } */
-        /*if(gamepad1.a){
+            elevator2.setPower(0);
+        }
+        if(gamepad2.a){
             wobbleGrabber.setPosition(1);
             telemetry.addData("Wobble Grabber", wobbleGrabber.getPosition());
             telemetry.update();
         }
-        else if(gamepad1.b){
+        else if(gamepad2.b){
             wobbleGrabber.setPosition(0.68);
             telemetry.addData("Wobble Grabber", wobbleGrabber.getPosition());
             telemetry.update();
         }
-        else if(gamepad1.x){
+        else if(gamepad2.x){
             wobbleGrabber.setPosition(0.5);
-        }*/
+        }
 
-        if(gamepad1.left_trigger > 0.1){
-            intake.setPower(-gamepad1.left_trigger);
+        if(gamepad1.right_trigger > 0.1){
+            intake.setPower(-1);
             telemetry.addData("intake", intake.getPower());
             telemetry.update();
         }
@@ -81,7 +84,7 @@ public class outtakeTest extends OpMode {
             telemetry.update();
         }
 
-        if(gamepad2.x){
+        /*if(gamepad2.x){
             elevator.setPosition(1);
             telemetry.addData("Elevator", elevator.getPosition());
             telemetry.update();
@@ -90,23 +93,21 @@ public class outtakeTest extends OpMode {
             elevator.setPosition(0);
             telemetry.addData("Elevator", elevator.getPosition());
             telemetry.update();
-        }
+        } */
         if(gamepad1.dpad_down){
             pulley1.setPower(0.1);
         }
-        else if (gamepad1.dpad_up)
-        {
+        else if (gamepad1.dpad_up){
             pulley1.setPower(-0.3);
         }
-        else
-        {
+        else{
             pulley1.setPower(0);
         }
-        if(gamepad2.a){
-            pusher.setPosition(1);
-        }
-        else if(gamepad2.b){
+        if(gamepad1.a){
             pusher.setPosition(0.8);
+        }
+        if(gamepad1.b){
+            pusher.setPosition(0.6);
         }
 
 
