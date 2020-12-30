@@ -20,21 +20,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 
 public class hardwareMap {
-
-    //Halfpower
-    public double halfPower;
-
-    //Sticks
-    public double rightstickx;
-    public double leftstickx;
-    public double leftstickyfront;
-    public double leftstickyback;
 
     // Motors
     public DcMotor fL = null;
@@ -44,13 +31,12 @@ public class hardwareMap {
     public DcMotor intake = null;
     public DcMotor shooter = null;
     public DcMotor shooter2 = null;
-    public DcMotor pulley1 = null;
+    public DcMotor pulley;
 
     // Servos
     //public Servo clip = null;
-    public CRServo wobble = null;
+    //public Servo wobble = null;
     public CRServo elevator = null;
-    public Servo pusher = null;
 
     // HardwareMap
     HardwareMap hwMap;
@@ -98,9 +84,9 @@ public class hardwareMap {
         intake = opmode.hardwareMap.get(DcMotor.class, "intake");
         shooter = opmode.hardwareMap.get(DcMotor.class, "shooter");
         shooter2 = opmode.hardwareMap.get(DcMotor.class, "shooter2");
-        wobble = opmode.hardwareMap.get(CRServo.class, "wobble");
+        //wobble = opmode.hardwareMap.get(Servo.class, "wobble");
         elevator = opmode.hardwareMap.get(CRServo.class, "elevator");
-        pusher = opmode.hardwareMap.get(Servo.class, "pusher");
+        pulley = opmode.hardwareMap.get(DcMotor.class, "pulley");
 
         degreesToTicks = 560.0 / 360.0;
 
@@ -163,11 +149,8 @@ public class hardwareMap {
         opmode.telemetry.update();
 
     }
-
     public void init(LinearOpMode lOpmode, Boolean teleop) {
         opmode = lOpmode;
-
-        halfPower = 1;
         // Hardware map
         hwMap = opmode.hardwareMap;
 
@@ -179,8 +162,9 @@ public class hardwareMap {
 
         //Define and initialize servos
         //clip = hwMap.get(Servo.class, "clip");
-        wobble = opmode.hardwareMap.get(CRServo.class, "wobble");
-        elevator = opmode.hardwareMap.get(CRServo.class, "elevator");
+        //wobble = opmode.hardwareMap.get(Servo.class, "wobble");
+        //elevator = opmode.hardwareMap.get(Servo.class, "elevator");
+        pulley = opmode.hardwareMap.get(DcMotor.class, "pulley");
 
         //set direction of motors
         fL.setDirection(DcMotor.Direction.REVERSE);
@@ -213,7 +197,7 @@ public class hardwareMap {
         return Math.abs(distance * COUNTS_PER_INCH);
     }
 
-    public void goStraight(double distance, double power) {
+    public void goStraight (double distance, double power) {
         dtEncoderModeOn();
         int startVal = fL.getCurrentPosition();
         while (Math.abs(fL.getCurrentPosition() - startVal) < atTarget(distance) && opmode.opModeIsActive()) {
@@ -268,6 +252,7 @@ public class hardwareMap {
         bL.setPower(0);
         bR.setPower(0);
     }
+
 
     // Strafe right
     public void strafeRight(double distance, double power) {
@@ -356,6 +341,12 @@ public class hardwareMap {
 
     }
 
+    public void resetPulley()
+    {
+        pulley.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        opmode.idle();
+    }
+
     // Return avg of all 4 motor encoder values
     public double encoderAvg() {
 
@@ -413,7 +404,7 @@ public class hardwareMap {
             power = -power + .15;
         }
 
-        double target = Math.abs(distance * (537.6 / 15.5));
+        double target = Math.abs(distance * (537.6/15.5));
 
         brakeMode();
         reset();
@@ -428,12 +419,14 @@ public class hardwareMap {
                     fR.setPower(1.0 * speed * .9793);
                     bL.setPower(.9 * speed);
                     bR.setPower(1.0 * speed);
-                } else if (getAngle() < -1) {
+                }
+                else if (getAngle() < -1) {
                     fL.setPower(1.0 * speed);
                     fR.setPower(.9 * speed * .9793);
                     bL.setPower(1.0 * speed);
                     bR.setPower(.9 * speed);
-                } else {
+                }
+                else {
                     fL.setPower(speed);
                     fR.setPower(speed * .9793);
                     bL.setPower(speed);
@@ -454,7 +447,8 @@ public class hardwareMap {
 
 
             }
-        } else {
+        }
+        else {
             while (Math.abs(encoderAvg()) < target && opmode.opModeIsActive() && runtime.seconds() < timeout) {
                 speed = (-.15 + (power * remainingDistance(distance)));
                 if (getAngle() > 1) {
@@ -462,12 +456,14 @@ public class hardwareMap {
                     fR.setPower(.9 * speed * .9793);
                     bL.setPower(1.0 * speed);
                     bR.setPower(.9 * speed);
-                } else if (getAngle() < -1) {
+                }
+                else if (getAngle() < -1) {
                     fL.setPower(.9 * speed);
                     fR.setPower(1.0 * speed * .9793);
                     bL.setPower(.9 * speed);
                     bR.setPower(1.0 * speed);
-                } else {
+                }
+                else {
                     fL.setPower(speed);
                     fR.setPower(speed * .9793);
                     bL.setPower(speed);
@@ -493,6 +489,7 @@ public class hardwareMap {
         resetAngle();
     }
 
+
     public void resetAngle() {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
@@ -500,7 +497,7 @@ public class hardwareMap {
     }
 
     public double remainingDistance(double distance) {
-        double target = Math.abs(distance * (537.6 / 15.5));
+        double target = Math.abs(distance * (537.6/15.5));
         return (target - encoderAvg()) / target;
     }
 
@@ -545,13 +542,13 @@ public class hardwareMap {
         return correction;
     }
 
-    public void strafeRightGyro(double distance, double power) {
+    public void strafeRightGyro (double distance, double power) {
         //bR.setDirection(DcMotorSimple.Direction.REVERSE);
         //fR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         reset();
         resetAngle();
-        double target = Math.abs(distance * (537.6 / 11));
+        double target = Math.abs(distance * (537.6/11));
 
         fL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -565,16 +562,18 @@ public class hardwareMap {
                 fR.setPower(-power * .9);
                 bL.setPower(-power * 1.1 * 0.91);
                 bR.setPower(power * 1.1 * 0.91);
-            } else if (getAngle() < -1) {
+            }
+            else if (getAngle() < -1) {
                 fL.setPower(power * 1.1);
                 fR.setPower(-power * 1.1);
                 bL.setPower(-power * .9 * 0.91);
                 bR.setPower(power * .9 * 0.91);
-            } else {
+            }
+            else {
                 fL.setPower(power);
                 fR.setPower(-power);
-                bL.setPower(-power * 0.91);
-                bR.setPower(power * 0.91);
+                bL.setPower(-power* 0.91);
+                bR.setPower(power* 0.91);
             }
             //opmode.telemetry.addData("avg", encoderAvg());
             //opmode.telemetry.addData("fl", fL.getCurrentPosition());
@@ -597,11 +596,11 @@ public class hardwareMap {
         fR.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    public void strafeLeftGyro(double distance, double power, int time) {
+    public void strafeLeftGyro (double distance, double power, int time) {
         runtime.reset();
         reset();
         resetAngle();
-        double target = Math.abs(distance * (537.6 / 11));
+        double target = Math.abs(distance * (537.6/11));
 
         fL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -615,12 +614,14 @@ public class hardwareMap {
                 fR.setPower(power * 1.1);
                 bL.setPower(power * .9 * 0.91);
                 bR.setPower(-power * .9 * 0.91);
-            } else if (getAngle() < -1) {
+            }
+            else if (getAngle() < -1) {
                 fL.setPower(-power * .9);
-                fR.setPower(power * .9);
+                fR.setPower(power * .9 );
                 bL.setPower(power * 1.1 * 0.91);
                 bR.setPower(-power * 1.1 * 0.91);
-            } else {
+            }
+            else {
                 fL.setPower(-power);
                 fR.setPower(power);
                 bL.setPower(power * 0.91);
@@ -644,27 +645,24 @@ public class hardwareMap {
         fR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         bR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
-
-    public void turnPID(double angle, double pwr, double i, double d) {
+    /*public void turnPID(double angle, double pwr, double d) {
         resetAngle();
 
         double deltaAngle = Math.abs(angle - getAngle());
         double pastdeltaAngle = deltaAngle;
-        double currentTime = runtime.milliseconds();
+        double currentTime;
         double kP = pwr / angle;
-        double kI = i;
+        double kI = 0.01;
         double kD = d / angle;
         double prevTime = 0;
         double apply = 0;
         double deltaTime;
 
-        while (Math.abs(deltaAngle) > 1) {
+        while (Math.abs(deltaAngle) > 1){
             deltaAngle = Math.abs(angle - getAngle());
             kP = deltaAngle * kP;
-            prevTime = currentTime;
-            pastdeltaAngle = deltaAngle;
             currentTime = runtime.milliseconds();
-            deltaTime = currentTime - prevTime;
+            deltaTime =  currentTime - prevTime;
             kI = deltaAngle * deltaTime * kI;
             kD = (deltaAngle - pastdeltaAngle) / deltaTime * kD;
             apply = kP + kI + kD;
@@ -674,8 +672,66 @@ public class hardwareMap {
             bL.setPower(-apply);
             bR.setPower(apply);
 
-
+            prevTime = currentTime;
+            pastdeltaAngle = deltaAngle;
         }
+    }*/
+    public void turnPID(double angle, double p, double i, double d, double timeout){
+        runtime.reset();
+        resetAngle();
+        double kP = Math.abs(p);
+        double kD = d;
+        double kI = i;
+        double integral = 0;
+        double currentTime = runtime.milliseconds();
+        double pastTime = 0;
+        startPos = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        //opmode.telemetry.addData("start offset: ", startPos.firstAngle);
+        //opmode.telemetry.update();
+        //opmode.sleep(2000);
+        double target = (angle + startPos.firstAngle);
+        double prevError = target - getAngle();
+        double error = prevError;
+        double power = 0;
+        while ((Math.abs(error) > .5 && runtime.seconds() < timeout && opmode.opModeIsActive())) {
+            pastTime = currentTime;
+            currentTime = runtime.milliseconds();
+            double dT = currentTime - pastTime;
+            prevError = error;
+            error = target - getAngle();
+            integral += dT * (prevError);
+
+            if (Math.abs(integral * kI) > .15 && Math.abs(error * kP) < .1) {
+                kI = Math.abs(.15/integral);
+            }
+            else {
+                kI = 0;
+            }
+
+            power = (error * kP) + integral * kI + ((error - prevError) / dT * kD);
+            if (power < 0) {
+                fL.setPower(power - .1);
+                bL.setPower(power - .1);
+                fR.setPower(-1 * (power) + .1);
+                bR.setPower(-1 * (power) + .1);
+
+            } else {
+                fL.setPower(power + .1);
+                bL.setPower(power + .1);
+                fR.setPower(-1 * (power) - .1);
+                bR.setPower(-1 * (power) - .1);
+            }
+
+
+            opmode.telemetry.addData("angle: ", getAngle());
+            opmode.telemetry.addData("P", (error * kP));
+            opmode.telemetry.addData("I", (integral * kI));
+            opmode.telemetry.addData("integral", integral);
+            opmode.telemetry.addData("D", ((Math.abs(error) - Math.abs(prevError)) / dT * kD));
+            opmode.telemetry.update();
+            prevError = error;
+        }
+        stopMotors();
     }
 
     public void straightPID(double dist, double pwr, double d) {
@@ -694,12 +750,12 @@ public class hardwareMap {
         double apply = 0;
         double deltaTime;
 
-        while (Math.abs(deltaDist) > 1) {
+        while (Math.abs(deltaDist) > 1){
             avgEncoder = (fL.getCurrentPosition() + fR.getCurrentPosition()) / 2;
             deltaDist = Math.abs(dist - avgEncoder);
             kP = deltaDist * kP;
             currentTime = runtime.milliseconds();
-            deltaTime = currentTime - prevTime;
+            deltaTime =  currentTime - prevTime;
             kI = deltaDist * deltaTime * kI;
             kD = (deltaDist - pastdeltaDist) / deltaTime * kD;
             apply = kP + kI + kD;
@@ -710,13 +766,17 @@ public class hardwareMap {
                 fR.setPower(apply);
                 bL.setPower(apply);
                 bR.setPower(apply);
-            } else if (getAngle() > 1 && getAngle() < 60) {
+            }
+
+            else if (getAngle() > 1 && getAngle() < 60) {
                 gyroFix += .001;
                 fL.setPower(apply);
                 fR.setPower(apply + gyroFix);
                 bL.setPower(apply);
                 bR.setPower(apply + gyroFix);
-            } else if (getAngle() < 359 && getAngle() > 300) {
+            }
+
+            else if (getAngle() < 359 && getAngle() > 300) {
                 gyroFix += .001;
                 fL.setPower(apply + gyroFix);
                 fR.setPower(apply);
@@ -728,120 +788,48 @@ public class hardwareMap {
             pastdeltaDist = deltaDist;
         }
     }
+    public void shooter(double pwr){
+        runtime.reset();
+        if(runtime.seconds() < 3) {
+            shooter.setPower(pwr);
+            shooter2.setPower(pwr);
+        }
+        opmode.telemetry.addData("time", runtime.seconds());
+        opmode.telemetry.update();
+    }
+    public void pivot(int ticks, double pwr){
+       runtime.reset();
+       reset();
+       resetAngle();
+       //angle *= degreesToTicks;
+       pulley.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       pulley.setTargetPosition(ticks);
+       pulley.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+       pulley.setPower(pwr);
 
-    public void trigMecanum() { //turning and moving method
-        rightstickx = Math.abs(gamepad1.right_stick_x) * -gamepad1.right_stick_x;
-        leftstickx = -gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
+       while(pulley.isBusy()){
+           opmode.telemetry.addData("pulley", pulley.getCurrentPosition());
+           opmode.telemetry.update();
+       }
+       pulley.setPower(0);
+    }
+    public void elevator(double time, double pwr){
+        runtime.reset();
+        reset();
+        resetAngle();
 
-        leftstickyfront = Math.abs(gamepad1.left_stick_y) * gamepad1.left_stick_y;
-        leftstickyback = Math.abs(gamepad1.left_stick_y) * -gamepad1.left_stick_y;
+        if(runtime.seconds() < time){
+            elevator.setPower(pwr);
+        }
+    }
+    public void intake(double time, double pwr){
+        runtime.reset();
+        reset();
+        resetAngle();
 
-        double rFront = Math.hypot(rightstickx, leftstickyfront);
-        double rBack = Math.hypot(rightstickx, leftstickyback);
-
-        double robotAngleFront = Math.atan2(leftstickyfront, rightstickx) - Math.PI / 4;
-        double robotAngleBack = Math.atan2(leftstickyback, rightstickx) - Math.PI / 4;
-
-        double rightX = leftstickx;
-
-        final double v1 = rFront * Math.cos(robotAngleFront) + rightX;
-        final double v2 = rFront * Math.sin(robotAngleFront) - rightX;
-        final double v3 = rBack * Math.sin(robotAngleBack) + rightX;
-        final double v4 = rBack * Math.cos(robotAngleBack) - rightX;
-
-        telemetry.addData("fl", v1);
-        telemetry.addData("fR", v2);
-        telemetry.addData("bL", v3);
-        telemetry.addData("bR", v4);
-        telemetry.addData("leftX", gamepad1.left_stick_x);
-        telemetry.addData("leftY", gamepad1.left_stick_y);
-        telemetry.addData("Right X", rightX);
-        telemetry.update();
-
-        /*if(Math.abs(gamepad1.right_stick_y) > 0.1){ //strafing method
-            fL.setPower(gamepad1.right_stick_y);
-            bL.setPower(-gamepad1.right_stick_y);
-            fR.setPower(gamepad1.right_stick_y);
-            bR.setPower(-gamepad1.right_stick_y);
-        }*/
-        if (Math.abs(gamepad1.left_stick_x) > 0.1 || Math.abs(gamepad1.left_stick_y) > 0.1) {
-            fL.setPower(-v1 / halfPower);
-            fR.setPower(v2 / halfPower);
-            bL.setPower(v3 / halfPower);// * .79);
-            bR.setPower(-v4 / halfPower);// * .79);
-        } else if (Math.abs(gamepad1.right_stick_x) > 0.2 || Math.abs(gamepad1.right_stick_y) > 0.2) {
-            fL.setPower(v1 / halfPower);
-            fR.setPower(-v2 / halfPower);
-            bL.setPower(-v3 / halfPower);// * .79);
-            bR.setPower(v4 / halfPower);// * .79);
-        } else {
-            fL.setPower(0);
-            fR.setPower(0);
-            bL.setPower(0);// * .79);
-            bR.setPower(0);// * .79);
+        if(runtime.seconds() < time){
+            intake.setPower(pwr);
         }
     }
 
-    public void moveFlicker() {
-        if (gamepad2.dpad_left) {
-            pusher.setPosition(1);
-        }
-        if (gamepad2.dpad_right) {
-            pusher.setPosition(.8);
-        }
-
-    }
-
-    public void moveElevator() {
-        if (gamepad1.right_bumper) { elevator.setPower(0.5); }
-
-        else if (gamepad1.left_bumper) { elevator.setPower(-0.5); }
-
-        else { elevator.setPower(0); }
-    }
-
-    public void moveGrabber() {
-        if (gamepad1.a) { wobble.setPower(.5); }
-        else if (gamepad1.b) { wobble.setPower(-0.5); }
-        else { wobble.setPower(0); }
-    }
-
-    public void pivot() {
-        if (gamepad2.right_bumper) { pulley1.setPower(.5); }
-        else if (gamepad2.left_bumper) { pulley1.setPower(-.2); }
-        else { pulley1.setPower(0); }
-    }
-
-    public void togglePower() {
-        if (gamepad1.dpad_up) { halfPower = 1; }
-        if (gamepad1.dpad_down) { halfPower = 2; }
-    }
-
-    public void intake() {
-        if(gamepad1.left_trigger > 0.1){ intake.setPower(-gamepad1.left_trigger); }
-        else{
-            intake.setPower(0);
-        }
-    }
-
-    public void shoot() {
-        if (gamepad1.right_trigger > 0.1) {
-            shooter.setPower(-gamepad1.right_trigger);
-            shooter2.setPower(-gamepad1.right_trigger);
-        } else {
-            shooter.setPower(0);
-            shooter2.setPower(0);
-        }
-    }
-
-    public void teleOpRun() {
-        trigMecanum();
-        intake();
-        moveElevator();
-        pivot();
-        shoot();
-        moveFlicker();
-        moveGrabber();
-        togglePower();
-    }
 }

@@ -34,7 +34,7 @@ public class testTeleOp extends OpMode {
     }
 
     @Override
-    public void loop() {
+    public void loop(){
         trigMecanum();
     }
 
@@ -45,7 +45,6 @@ public class testTeleOp extends OpMode {
         bL.setPower(0);
         bR.setPower(0);
     }
-
     public void trigMecanum() { //turning and moving method
         rightstickx = Math.abs(gamepad1.right_stick_x) * -gamepad1.right_stick_x ;
         leftstickx = -gamepad1.left_stick_x * Math.abs(gamepad1.left_stick_x);
@@ -75,17 +74,30 @@ public class testTeleOp extends OpMode {
         telemetry.addData ("Right X", rightX);
         telemetry.update();
 
-        if(Math.abs(gamepad1.right_stick_y) > 0.1){ //strafing method
+        /*if(Math.abs(gamepad1.right_stick_y) > 0.1){ //strafing method
             fL.setPower(gamepad1.right_stick_y);
             bL.setPower(-gamepad1.right_stick_y);
             fR.setPower(gamepad1.right_stick_y);
             bR.setPower(-gamepad1.right_stick_y);
+        }*/
+        if(Math.abs(gamepad1.left_stick_x) > 0.1|| Math.abs(gamepad1.left_stick_y) > 0.1){
+            fL.setPower(-v1);
+            fR.setPower(v2);
+            bL.setPower(v3);// * .79);
+            bR.setPower(-v4);// * .79);
         }
-
-        fL.setPower(-v1);
-        fR.setPower(-v2);
-        bL.setPower(v3);// * .79);
-        bR.setPower(v4);// * .79);
+       else if(Math.abs(gamepad1.right_stick_x) > 0.2 || Math.abs(gamepad1.right_stick_y) > 0.2){
+            fL.setPower(v1);
+            fR.setPower(-v2);
+            bL.setPower(-v3);// * .79);
+            bR.setPower(v4);// * .79);
+        }
+       else{
+            fL.setPower(0);
+            fR.setPower(0);
+            bL.setPower(0);// * .79);
+            bR.setPower(0);// * .79);
+        }
     }
 //Controls: Left stick y - turning, Right stick y - strafing, Right stick x - moving
 }

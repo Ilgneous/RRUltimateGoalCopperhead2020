@@ -29,7 +29,13 @@ public class autov1 extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-
+            //robot.turnPID(90, .71/90, 0, 0, 20000);
+           // robot.pivot(1000, 0.25);
+            //robot.pivot(-1000, 0.25);
+            //robot.shooter(0.1);
+            //robot.elevator(2, 0.3);
+           // telemetry.addData("angle", robot.getAngle());
+            //telemetry.update();
             //call functions
             String colorVals = vision.rbgVals();
             telemetry.addLine(colorVals);
@@ -39,10 +45,12 @@ public class autov1 extends LinearOpMode {
             sleep(3000000);
 
             // strafe left
+            //robot.strafeLeft(3, 1);
             // turn right
-            //dump.setPosition(1);
             // go backwards
+           // robot.moveStraight(-3, 1);
             // strafe left
+           // robot.strafeLeft(3, 1);
 
 
         }
